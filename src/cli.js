@@ -1,10 +1,8 @@
 import arg from 'arg'
 import chalk from 'chalk'
 import execa from 'execa'
-import fs from 'fs-extra'
 import inquirer from 'inquirer'
 import Listr from 'listr'
-import path from 'path'
 
 async function cloneVue2TemplateFromGit() {
     const repo = 'https://github.com/cytool/vue-template.git'
@@ -23,7 +21,7 @@ async function cloneVue2TemplateFromGit() {
 
 
     } catch (error) {
-        console.log(error.shortMessage, 'error')
+        // console.log(error.shortMessage, 'error')
         return {
             err: -1
         }
@@ -114,11 +112,11 @@ async function promptForMissingOptions(options) {
 
 export async function cli(args) {
 
-    console.log(fs.ensureDirSync(process.cwd() + '/vue2'), '返回值')
+    // console.log(fs.ensureDirSync(process.cwd() + '/vue2'), '返回值')
 
-    var stat = fs.stat(path.join(__dirname, '../v1ue2')).then((err, stats) => {
-        console.log(stats.isDirectory(), '看不懂')
-    }).catch(err => console.log('what。。。什么鬼'))
+    // var stat = fs.stat(path.join(__dirname, '../v1ue2')).then((err, stats) => {
+    //     console.log(stats.isDirectory(), '看不懂')
+    // }).catch(err => console.log('what。。。什么鬼'))
 
 
     // 检查模板资源
@@ -128,22 +126,18 @@ export async function cli(args) {
     // yarn serve
 
 
-    if (!fs.ensureDirSync(process.cwd() + '/vue2')) {
-        const tasks = new Listr([
-            {
-                title: '正在从Github下载Vue2模板文件',
-                task: () => cloneVue2TemplateFromGit().then(result => {
-                    console.log(result, '结果')
-                }),
-            },
-            {
 
-            },
-        ])
+    const tasks = new Listr([
+        {
+            title: '正在从Github下载Vue2模板文件',
+            task: () => cloneVue2TemplateFromGit()
+        },
 
-        await tasks.run()
+    ])
 
-    }
+    await tasks.run()
+
+
 
     let options = parseArgumentsIntoOptions(args)
     options = await promptForMissingOptions(options)
