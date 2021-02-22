@@ -3,39 +3,32 @@ import chalk from 'chalk'
 import inquirer from 'inquirer'
 import vue from './vue'
 
+const parseArgumentsIntoOptions = rawArgs => {
 
-
-
-
-function parseArgumentsIntoOptions(rawArgs) {
     try {
-        const args = arg(
-            {
-                '--help': Boolean,
-                '--ver': Number,
 
-                '-h': '--help',
-                '-v': '--ver',
-            },
-            {
-                argv: rawArgs.slice(2),
-            }
-        )
+        const args = arg({
+            '--help': Boolean,
+            '--ver': Number,
+            '-h': '--help',
+            '-v': '--ver',
+        }, { argv: rawArgs.slice(2), })
+
         return {
             folderName: args._[0],
             help: args['--help'] || false,
             ver: args['--ver'] || 2,
         }
+
     } catch (error) {
-        return {
-            err: 1,
-        }
+
+        return { err: 1, }
+
     }
+
 }
 
-
-
-async function promptForMissingOptions(options) {
+const promptForMissingOptions = async options => {
 
     if (options.err || options.help) {
 
@@ -51,50 +44,68 @@ async function promptForMissingOptions(options) {
         命令可以通过全称 ${chalk.green('cytool -v 3')} / 别名 ${chalk.green('cytool -ver 3')} 传递
         \r===================================================================================\n`)
 
-        return {
-            ...options
-        }
+        return { ...options, }
+
     }
 
-    let folderName = options.folderName ? process.cwd() + '/' + options.folderName : process.cwd()
-
+    let folderName = options.folderName ? `${process.cwd()}/${options.folderName}` : process.cwd()
     const questions = []
+
     if (!options.folderName) {
+
         questions.push({
             type: 'input',
             name: 'folderName',
-            message: `请输入文件夹名：`,
-            validate: function (input) {
+            message: '请输入文件夹名：',
+            validate(input) {
+
                 const done = this.async()
+
                 if (/^(\d|\.|[\u4e00-\u9fa5]){1,}/igu.test(input)) {
+
                     done('文件夹名称不能以数字或者.开头且不能是中文！')
                     return
+
                 }
+
                 done(null, true)
-                return
+
             },
         })
 
         const answers = await inquirer.prompt(questions)
-        if (answers.folderName.trim()) folderName = process.cwd() + '/' + answers.folderName
+
+        if (answers.folderName.trim()) {
+
+            folderName = `${process.cwd()}/${answers.folderName}`
+
+        }
+
     }
-
-
 
     return {
         ...options,
-        folderName
+        folderName,
     }
+
 }
 
-export async function cli(args) {
+const cli = async args => {
 
     let options = parseArgumentsIntoOptions(args)
+
     options = await promptForMissingOptions(options)
 
-    if (options.err) return
+    if (options.err) {
+
+        return
+
+    }
 
     await vue(options)
 
     console.log(options)
+
 }
+
+export { cli }
