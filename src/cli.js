@@ -9,20 +9,34 @@ const parseArgumentsIntoOptions = rawArgs => {
 
         const args = arg({
             '--help': Boolean,
-            '--ver': Number,
+            '--vue': Boolean,
+            '--gulp': Boolean,
             '-h': '--help',
-            '-v': '--ver',
-        }, { argv: rawArgs.slice(2), })
+            '-v': '--vue',
+            '-g': '--gulp',
+        }, {
+            permissive: false,
+            argv: rawArgs.slice(2),
+        })
+
+        console.log(args, '参数')
 
         return {
-            folderName: args._[0],
-            help: args['--help'] || false,
-            ver: args['--ver'] || 2,
+            args: args._,
+            folderName: args._.length === 1 ? args._[0] : undefined,
+            help: args['--help'],
+            vue: args['--vue'],
+            gulp: args['--gulp'],
         }
 
     } catch (error) {
 
-        return { err: 1, }
+        console.log('错误信息：', error.code)
+
+        return {
+            err: 1,
+            msg: `[${error.code}] 参数错误，请检查`,
+        }
 
     }
 
@@ -30,19 +44,86 @@ const parseArgumentsIntoOptions = rawArgs => {
 
 const promptForMissingOptions = async options => {
 
-    if (options.err || options.help) {
+    // 输入参数错误
+    if (options.err) {
 
-        console.log(`\n===================================================================================        
-        快速创建Vue模板工程
-        通过命令 ${chalk.green('cytool 目录名')} (默认Vue2) / ${chalk.green('cytool 目录名 --ver=3')} 来快速创建Vue项目
+        console.log(`\n
+    ${chalk.green('---------------------------------------------------')}
+    ❎❎❎ ${chalk.green(options.msg)} ❎❎❎
+    ${chalk.green('---------------------------------------------------')}
 
-        ${chalk.green('cytool --help')} : 查看帮助
-        ${chalk.green('cytool --ver')} : 指定Vue版本
-        ${chalk.green('cytool -h')} : --help的简写
-        ${chalk.green('cytool -v')} : --ver的简写
+    可选的参数: ${chalk.inverse(' cytool -g ')} / ${chalk.inverse(' cytool -v ')} 
+    
+    更多用法请通过${chalk.inverse(' cytool -h ')}查看
+    \n`)
 
-        命令可以通过全称 ${chalk.green('cytool -v 3')} / 别名 ${chalk.green('cytool -ver 3')} 传递
-        \r===================================================================================\n`)
+        return { ...options, }
+
+    }
+
+    // 同时输入两个参数
+    if (options.vue && options.gulp) {
+
+        console.log(`\n
+    ${chalk.green('-----------------------------------------------------------')}
+    ❎❎❎ ${chalk.green('[一次只能创建一种类型的项目] 参数错误，请检查')} ❎❎❎
+    ${chalk.green('-----------------------------------------------------------')}
+
+    可选的参数: ${chalk.inverse(' cytool -g ')} / ${chalk.inverse(' cytool -v ')} 👈 二选一  
+    
+    更多用法请通过${chalk.inverse(' cytool -h ')}查看
+    \n`)
+
+        return {
+            ...options,
+            err: 1,
+            msg: '[一次只能创建一种类型的项目] 参数错误，请检查',
+        }
+
+    }
+
+    if (options.args.length > 1) {
+
+        console.log(`\n
+    ${chalk.green('---------------------------------------------')}
+    ❎❎❎ ${chalk.green('[扩展参数过多] 参数错误，请检查')} ❎❎❎
+    ${chalk.green('---------------------------------------------')}
+
+    可选的参数: ${chalk.inverse(' cytool folderName ')} 👉 将会在 folderName/ 文件夹下创建项目
+    
+    更多用法请通过${chalk.inverse(' cytool -h ')}查看
+    \n`)
+
+        return {
+            ...options,
+            err: 1,
+            msg: '[扩展参数过多] 参数错误，请检查',
+        }
+
+    }
+
+    if (options.help) {
+
+        console.log(`\n        
+    
+    ${chalk.green('--------------------------')}
+    🍓🍓🍓 ${chalk.green('CYTOOL工具集')} 🍓🍓🍓
+    ${chalk.green('--------------------------')}
+    
+    #Usage       : ${chalk.bgMagenta(' cytool <folderName> <options> ')}
+    
+    #FolderName  : 要创建的文件夹名称
+    
+    #Options:
+      ${chalk.green('--help')}     : 查看帮助
+      ${chalk.green('--vue')}      : 指定Vue版本,创建vue项目
+      ${chalk.green('--gulp')}     : 指定Gulp版本,创建gulp项目
+      ${chalk.green('-h')}         : --help的简写
+      ${chalk.green('-v')}         : --vue的简写
+      ${chalk.green('-g')}         : --gulp的简写
+
+
+    \n`)
 
         return { ...options, }
 
@@ -51,7 +132,8 @@ const promptForMissingOptions = async options => {
     let folderName = options.folderName ? `${process.cwd()}/${options.folderName}` : process.cwd()
     const questions = []
 
-    if (!options.folderName) {
+    // 没有输入文件夹名称
+    if (!options.args.length) {
 
         questions.push({
             type: 'input',
