@@ -61,6 +61,27 @@ const promptForMissingOptions = async options => {
 
     }
 
+    // 没有输入必选参数
+    if (!options.vue && !options.gulp) {
+
+        console.log(`\n
+    ${chalk.green('---------------------------------------------')}
+    ❎❎❎ ${chalk.green('[缺少必要参数] 参数错误，请检查')} ❎❎❎
+    ${chalk.green('---------------------------------------------')}
+
+    必填的参数: ${chalk.inverse(' cytool -g ')} / ${chalk.inverse(' cytool -v ')} 👈 二选一  
+    
+    更多用法请通过${chalk.inverse(' cytool -h ')}查看
+    \n`)
+
+        return {
+            ...options,
+            err: 1,
+            msg: '[缺少必要参数] 参数错误，请检查',
+        }
+
+    }
+
     // 同时输入两个参数
     if (options.vue && options.gulp) {
 
@@ -82,6 +103,7 @@ const promptForMissingOptions = async options => {
 
     }
 
+    // 其余参数大于1
     if (options.args.length > 1) {
 
         console.log(`\n
