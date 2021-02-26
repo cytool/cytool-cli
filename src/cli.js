@@ -62,7 +62,7 @@ const promptForMissingOptions = async options => {
     }
 
     // 没有输入必选参数
-    if (!options.vue && !options.gulp) {
+    if (!options.help && !options.vue && !options.gulp) {
 
         console.log(`\n
     ${chalk.green('---------------------------------------------')}
