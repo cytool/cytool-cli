@@ -11,15 +11,15 @@ const parseArgumentsIntoOptions = rawArgs => {
             '--help': Boolean,
             '--vue': Boolean,
             '--gulp': Boolean,
+            '--force': Boolean,
             '-h': '--help',
             '-v': '--vue',
             '-g': '--gulp',
+            '-f': '--force',
         }, {
             permissive: false,
             argv: rawArgs.slice(2),
         })
-
-        console.log(args, '参数')
 
         return {
             args: args._,
@@ -27,6 +27,7 @@ const parseArgumentsIntoOptions = rawArgs => {
             help: args['--help'],
             vue: args['--vue'],
             gulp: args['--gulp'],
+            force: args['--force'],
         }
 
     } catch (error) {
@@ -140,9 +141,11 @@ const promptForMissingOptions = async options => {
       ${chalk.green('--help')}     : 查看帮助
       ${chalk.green('--vue')}      : 指定Vue版本,创建vue项目
       ${chalk.green('--gulp')}     : 指定Gulp版本,创建gulp项目
+      ${chalk.green('--force')}    : 强制写入已存在目录
       ${chalk.green('-h')}         : --help的简写
       ${chalk.green('-v')}         : --vue的简写
       ${chalk.green('-g')}         : --gulp的简写
+      ${chalk.green('-g')}         : --force的简写
 
 
     \n`)
@@ -151,7 +154,7 @@ const promptForMissingOptions = async options => {
 
     }
 
-    let folderName = options.folderName ? `${process.cwd()}/${options.folderName}` : process.cwd()
+    let folderName = options.folderName ? options.folderName : ''
     const questions = []
 
     // 没有输入文件夹名称
@@ -181,7 +184,8 @@ const promptForMissingOptions = async options => {
 
         if (answers.folderName.trim()) {
 
-            folderName = `${process.cwd()}/${answers.folderName}`
+            // eslint-disable-next-line prefer-destructuring
+            folderName = answers.folderName
 
         }
 
@@ -207,8 +211,6 @@ const cli = async args => {
     }
 
     await vue(options)
-
-    console.log(options)
 
 }
 
