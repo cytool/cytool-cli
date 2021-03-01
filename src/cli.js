@@ -2,6 +2,7 @@ import arg from 'arg'
 import chalk from 'chalk'
 import inquirer from 'inquirer'
 import vue from './vue'
+import gulp from './gulp'
 
 const parseArgumentsIntoOptions = rawArgs => {
 
@@ -150,7 +151,10 @@ const promptForMissingOptions = async options => {
 
     \n`)
 
-        return { ...options, }
+        return {
+            ...options,
+            err: 1,
+        }
 
     }
 
@@ -210,7 +214,17 @@ const cli = async args => {
 
     }
 
-    await vue(options)
+    if (options.vue) {
+
+        await vue(options)
+
+    }
+
+    if (options.gulp) {
+
+        await gulp(options)
+
+    }
 
 }
 
