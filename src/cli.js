@@ -1,8 +1,8 @@
 import arg from 'arg'
 import chalk from 'chalk'
 import inquirer from 'inquirer'
-import vue from './vue'
 import gulp from './gulp'
+import vue from './vue'
 
 const parseArgumentsIntoOptions = rawArgs => {
 
@@ -172,9 +172,9 @@ const promptForMissingOptions = async options => {
 
                 const done = this.async()
 
-                if (/^(\d|\.|[\u4e00-\u9fa5]){1,}/igu.test(input)) {
+                if (/^(\.|[\u4e00-\u9fa5]){1,}/igu.test(input)) {
 
-                    done('文件夹名称不能以数字或者.开头且不能是中文！')
+                    done('文件夹名称不能以.开头且不能是中文！')
                     return
 
                 }
