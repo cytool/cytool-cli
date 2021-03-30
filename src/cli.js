@@ -1,8 +1,7 @@
 import arg from 'arg'
 import chalk from 'chalk'
 import inquirer from 'inquirer'
-import gulp from './gulp'
-import vue from './vue'
+import createProject from './createProject'
 
 const parseArgumentsIntoOptions = rawArgs => {
 
@@ -214,17 +213,7 @@ const cli = async args => {
 
     }
 
-    if (options.vue) {
-
-        await vue(options)
-
-    }
-
-    if (options.gulp) {
-
-        await gulp(options)
-
-    }
+    await createProject(options)
 
 }
 
